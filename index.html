@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaziLink Mtaani</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg:#060811; --surface:#0d1020; --surface2:#141728; --surface3:#1a1f35;
+  --border:#1e2545; --border2:#2a3060;
+  --text:#e2e8f8; --muted:#5a6490;
+  --green:#00e676; --amber:#ffb300; --blue:#4488ff; --purple:#9966ff; --gold:#ffd700;
+  --radius:14px;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{ font-family:'Space Grotesk',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* NAV */
+nav{ background:var(--surface); border-bottom:1px solid var(--border); padding:14px 20px;
+     display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:50; }
+.brand{ font-size:18px; font-weight:700; color:var(--green); }
+.brand span{ color:var(--muted); font-weight:400; font-size:13px; margin-left:4px; }
+
+/* LAYOUT */
+main{ max-width:500px; margin:0 auto; padding:24px 16px 100px; }
+.page-title{ font-size:22px; font-weight:700; margin-bottom:4px; }
+.page-sub{ color:var(--muted); font-size:13px; margin-bottom:22px; }
+.card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:24px; }
+.card-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); margin-bottom:14px; }
+.divider{ height:1px; background:var(--border); margin:16px 0; }
+
+/* COIN GRID */
+.coin-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+@media(max-width:380px){ .coin-grid{ grid-template-columns:repeat(2,1fr); } }
+.coin-card{ background:var(--surface2); border:2px solid var(--border); border-radius:12px;
+            padding:14px 6px; cursor:pointer; text-align:center; transition:.18s; }
+.coin-card:hover{ border-color:#2a4060; }
+.coin-card.sel{ border-color:var(--green); background:#071410; }
+.coin-icon{ font-size:24px; margin-bottom:5px; }
+.coin-amt{ font-size:17px; font-weight:700; color:var(--green); }
+.coin-price{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* SECTION TABS */
+.tab-row{ display:flex; gap:8px; margin-bottom:16px; }
+.tab{ flex:1; padding:10px 0; border:1px solid var(--border); border-radius:10px; cursor:pointer;
+      font-family:inherit; font-size:13px; font-weight:700; background:var(--surface2);
+      color:var(--muted); transition:.18s; }
+.tab.active{ background:var(--surface3); color:var(--text); border-color:var(--border2); }
+
+/* PLAN TILES */
+.plan-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.plan-tile{ background:var(--surface2); border:2px solid var(--border); border-radius:12px;
+            padding:16px 14px; cursor:pointer; transition:.18s; }
+.plan-tile:hover{ border-color:#2a4060; }
+.plan-tile.sel-normal{ border-color:var(--blue); background:#08101c; }
+.plan-tile.sel-premium{ border-color:var(--gold); background:#161000; }
+.tier-badge{ display:inline-block; font-size:9px; font-weight:700; text-transform:uppercase;
+             letter-spacing:.8px; padding:2px 8px; border-radius:30px; margin-bottom:10px; }
+.badge-normal{ background:#1a2540; color:var(--blue); }
+.badge-premium{ background:#2a1e00; color:var(--gold); }
+.tile-price{ font-size:24px; font-weight:700; line-height:1; margin-bottom:2px; }
+.tile-per{ font-size:11px; color:var(--muted); }
+.tile-perks{ margin-top:10px; font-size:11px; color:var(--muted); line-height:1.8; }
+.tile-perks li{ list-style:none; }
+.tile-perks li::before{ content:"✓ "; color:var(--green); }
+.sel-premium .tile-perks li::before{ color:var(--gold); }
+
+/* FIELD */
+.field{ margin-bottom:14px; }
+.field label{ font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.5px;
+              display:block; margin-bottom:6px; text-transform:uppercase; }
+.field input{ width:100%; background:var(--surface2); border:1px solid var(--border);
+              border-radius:10px; padding:12px 14px; color:var(--text); font-family:inherit;
+              font-size:15px; transition:.15s; }
+.field input:focus{ outline:none; border-color:var(--green); }
+.field input::placeholder{ color:var(--muted); }
+
+/* BUTTONS */
+.btn{ width:100%; padding:14px; border:none; border-radius:12px; font-family:inherit;
+      font-size:15px; font-weight:700; cursor:pointer; transition:.18s;
+      display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-green{ background:var(--green); color:#000; }
+.btn-blue{ background:var(--blue); color:#fff; }
+.btn-gold{ background:var(--gold); color:#000; }
+.btn:hover:not(:disabled){ filter:brightness(1.08); }
+.btn:disabled{ opacity:.35; cursor:not-allowed; }
+
+/* MPESA NOTE */
+.mpesa-note{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);
+             margin-top:10px; padding:10px 12px; background:var(--surface2); border-radius:8px; }
+.mpesa-note i{ color:var(--green); }
+.mpesa-note strong{ color:var(--text); }
+
+/* STATUS */
+.status{ padding:12px 14px; border-radius:10px; font-size:13px; margin-top:12px;
+         display:none; line-height:1.6; }
+.status.pending{ background:#1a1400; border:1px solid var(--amber); color:var(--amber); }
+.status.success{ background:#071410; border:1px solid var(--green); color:var(--green); }
+.status.error{   background:#1a0a0f; border:1px solid #ff4060;      color:#ff4060; }
+.spinner{ display:inline-block; width:13px; height:13px; border:2px solid currentColor;
+          border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite;
+          margin-right:7px; vertical-align:middle; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* TOAST */
+.toast{ position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+        background:#1a2040; border:1px solid var(--border2); border-radius:10px;
+        padding:11px 20px; font-size:13px; opacity:0; pointer-events:none;
+        transition:opacity .3s; z-index:999; white-space:nowrap; max-width:90vw; }
+.toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">⚡ KaziLink<span>Mtaani</span></span>
+</nav>
+
+<main>
+
+  <!-- ══ COINS ═══════════════════════════════════════════════════ -->
+  <div class="page-title">🪙 Buy Coins</div>
+  <p class="page-sub">Top up your KaziLink wallet instantly via M-Pesa</p>
+
+  <div class="card">
+    <div class="card-label">Choose a package</div>
+    <div class="coin-grid">
+      <div class="coin-card" data-coins="50"  onclick="selectCoin(this)">
+        <div class="coin-icon">🪙</div>
+        <div class="coin-amt">50</div>
+        <div class="coin-price">KES 50</div>
+      </div>
+      <div class="coin-card" data-coins="100" onclick="selectCoin(this)">
+        <div class="coin-icon">💰</div>
+        <div class="coin-amt">100</div>
+        <div class="coin-price">KES 100</div>
+      </div>
+      <div class="coin-card" data-coins="250" onclick="selectCoin(this)">
+        <div class="coin-icon">💎</div>
+        <div class="coin-amt">250</div>
+        <div class="coin-price">KES 250</div>
+      </div>
+      <div class="coin-card" data-coins="500" onclick="selectCoin(this)">
+        <div class="coin-icon">🏆</div>
+        <div class="coin-amt">500</div>
+        <div class="coin-price">KES 500</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>M-Pesa Phone Number</label>
+      <input id="coinPhone" type="tel" placeholder="07XXXXXXXX" maxlength="13">
+    </div>
+    <button class="btn btn-green" id="coinBtn" onclick="payCoins()" disabled>
+      Select a package above
+    </button>
+    <div class="mpesa-note">
+      <i class="fas fa-shield-alt"></i>
+      Secure · Safaricom M-Pesa · Till <strong>5725479</strong>
+    </div>
+    <div class="status" id="coinStatus"></div>
+  </div>
+
+  <!-- ══ SUBSCRIPTIONS ═══════════════════════════════════════════ -->
+  <div class="page-title">⭐ Monthly Plans</div>
+  <p class="page-sub">Unlock premium access on Schoolership or Network</p>
+
+  <div class="card">
+    <div class="card-label">Choose section</div>
+    <div class="tab-row">
+      <button class="tab active" id="tab-schoolership" onclick="switchSection('schoolership')">🎓 Schoolership</button>
+      <button class="tab"        id="tab-network"      onclick="switchSection('network')">🌐 Network</button>
+    </div>
+
+    <!-- Schoolership plans -->
+    <div id="plans-schoolership">
+      <div class="plan-row">
+        <div class="plan-tile" data-section="schoolership" data-tier="normal" onclick="selectPlan(this)">
+          <span class="tier-badge badge-normal">Normal</span>
+          <div class="tile-price" style="color:var(--blue)">KES 299</div>
+          <div class="tile-per">per month</div>
+          <ul class="tile-perks">
+            <li>Study materials</li>
+            <li>Community access</li>
+            <li>Basic resources</li>
+          </ul>
+        </div>
+        <div class="plan-tile" data-section="schoolership" data-tier="premium" onclick="selectPlan(this)">
+          <span class="tier-badge badge-premium">Premium</span>
+          <div class="tile-price" style="color:var(--gold)">KES 599</div>
+          <div class="tile-per">per month</div>
+          <ul class="tile-perks">
+            <li>All Normal perks</li>
+            <li>Mentorship sessions</li>
+            <li>Priority support</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Network plans (hidden by default) -->
+    <div id="plans-network" style="display:none">
+      <div class="plan-row">
+        <div class="plan-tile" data-section="network" data-tier="normal" onclick="selectPlan(this)">
+          <span class="tier-badge badge-normal">Normal</span>
+          <div class="tile-price" style="color:var(--blue)">KES 299</div>
+          <div class="tile-per">per month</div>
+          <ul class="tile-perks">
+            <li>Unlimited connects</li>
+            <li>Job alerts</li>
+            <li>Profile boost</li>
+          </ul>
+        </div>
+        <div class="plan-tile" data-section="network" data-tier="premium" onclick="selectPlan(this)">
+          <span class="tier-badge badge-premium">Premium</span>
+          <div class="tile-price" style="color:var(--gold)">KES 599</div>
+          <div class="tile-per">per month</div>
+          <ul class="tile-perks">
+            <li>All Normal perks</li>
+            <li>Featured profile</li>
+            <li>Recruiter DMs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>M-Pesa Phone Number</label>
+      <input id="subPhone" type="tel" placeholder="07XXXXXXXX" maxlength="13">
+    </div>
+    <button class="btn btn-blue" id="subBtn" onclick="paySubscription()" disabled>
+      Select a plan above
+    </button>
+    <div class="mpesa-note">
+      <i class="fas fa-shield-alt"></i>
+      Secure · Safaricom M-Pesa · Till <strong>5725479</strong>
+    </div>
+    <div class="status" id="subStatus"></div>
+  </div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  🔧 STEP 1 — Paste your Firebase config here
+//  Firebase Console → Project Settings → Your apps → Web → Config
+// ═══════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "PASTE_apiKey_HERE",
+  authDomain:        "PASTE_authDomain_HERE",
+  projectId:         "PASTE_projectId_HERE",
+  storageBucket:     "PASTE_storageBucket_HERE",
+  messagingSenderId: "PASTE_messagingSenderId_HERE",
+  appId:             "PASTE_appId_HERE",
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  🔧 STEP 2 — Paste your Cloud Functions trigger URL here
+//  Firebase Console → Functions → "api" function → Trigger URL
+//  Example: "https://us-central1-kazilink-mtaani.cloudfunctions.net/api"
+// ═══════════════════════════════════════════════════════════════
+const API_URL = "PASTE_FUNCTIONS_URL_HERE";
+
+// ════════════════════════════════════════════════════════════════
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+const PRICES = {
+  "schoolership:normal": 299, "schoolership:premium": 599,
+  "network:normal":      299, "network:premium":      599,
+};
+
+let selectedCoins   = null;
+let selectedSection = "schoolership";
+let selectedTier    = null;
+
+// ── Section tab switch ────────────────────────────────────────
+function switchSection(section) {
+  selectedSection = section;
+  selectedTier    = null;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(`tab-${section}`).classList.add("active");
+  document.getElementById("plans-schoolership").style.display = section === "schoolership" ? "" : "none";
+  document.getElementById("plans-network").style.display      = section === "network"      ? "" : "none";
+  document.querySelectorAll(".plan-tile").forEach(t => t.classList.remove("sel-normal","sel-premium"));
+  resetSubBtn();
+}
+
+// ── Coin selection ────────────────────────────────────────────
+function selectCoin(el) {
+  document.querySelectorAll(".coin-card").forEach(c => c.classList.remove("sel"));
+  el.classList.add("sel");
+  selectedCoins = parseInt(el.dataset.coins, 10);
+  const btn = document.getElementById("coinBtn");
+  btn.disabled = false;
+  btn.className = "btn btn-green";
+  btn.innerHTML = `<i class="fas fa-mobile-alt"></i> Pay KES ${selectedCoins} via M-Pesa`;
+}
+
+// ── Plan selection ────────────────────────────────────────────
+function selectPlan(el) {
+  document.querySelectorAll(`#plans-${selectedSection} .plan-tile`).forEach(t =>
+    t.classList.remove("sel-normal","sel-premium"));
+  selectedTier = el.dataset.tier;
+  el.classList.add(`sel-${selectedTier}`);
+  const price = PRICES[`${selectedSection}:${selectedTier}`];
+  const btn = document.getElementById("subBtn");
+  btn.disabled  = false;
+  btn.className = selectedTier === "premium" ? "btn btn-gold" : "btn btn-blue";
+  btn.innerHTML = `<i class="fas fa-mobile-alt"></i> Pay KES ${price}/mo via M-Pesa`;
+}
+
+function resetSubBtn() {
+  const btn = document.getElementById("subBtn");
+  btn.disabled  = true;
+  btn.className = "btn btn-blue";
+  btn.textContent = "Select a plan above";
+}
+
+// ── Core STK Push ─────────────────────────────────────────────
+async function stkRequest(type, phone, statusId, btnId) {
+  const statusEl = document.getElementById(statusId);
+  const btnEl    = document.getElementById(btnId);
+
+  const p = phone.trim().replace(/^0/, "254").replace(/^\+/, "");
+  if (!/^254\d{9}$/.test(p))
+    return showStatus(statusEl, "error", "❌ Enter a valid Kenyan number e.g. 0712345678");
+
+  let uid;
+  try {
+    if (!auth.currentUser) await auth.signInAnonymously();
+    uid = auth.currentUser.uid;
+  } catch {
+    return showStatus(statusEl, "error", "❌ Auth error. Reload and try again.");
+  }
+
+  const prevHtml = btnEl.innerHTML;
+  btnEl.disabled = true;
+  showStatus(statusEl, "pending",
+    '<span class="spinner"></span> Sending STK Push… check your phone now');
+
+  try {
+    const resp = await fetch(`${API_URL}/stkpush`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ phone: p, type, uid }),
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      showStatus(statusEl, "success",
+        `✅ ${data.message}<br><small style="opacity:.7">Payment reflects in 1–2 minutes.</small>`);
+      toast("📲 STK Push sent! Enter your M-Pesa PIN to complete.");
+    } else {
+      showStatus(statusEl, "error", `❌ ${data.error || "Payment failed. Try again."}`);
+      btnEl.disabled = false; btnEl.innerHTML = prevHtml;
+    }
+  } catch {
+    showStatus(statusEl, "error", "❌ Network error. Check your connection and retry.");
+    btnEl.disabled = false; btnEl.innerHTML = prevHtml;
+  }
+}
+
+async function payCoins() {
+  if (!selectedCoins) return;
+  await stkRequest(`coins:${selectedCoins}`,
+    document.getElementById("coinPhone").value, "coinStatus", "coinBtn");
+}
+
+async function paySubscription() {
+  if (!selectedTier) return;
+  await stkRequest(`subscription:${selectedSection}:${selectedTier}`,
+    document.getElementById("subPhone").value, "subStatus", "subBtn");
+}
+
+// ── UI helpers ────────────────────────────────────────────────
+function showStatus(el, type, msg) {
+  el.className = `status ${type}`; el.innerHTML = msg; el.style.display = "block";
+}
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 4500);
+}
+</script>
+</body>
+</html>

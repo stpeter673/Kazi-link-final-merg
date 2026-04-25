@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    function isAdmin() {
+      return isSignedIn() &&
+             request.auth.token.email == "kazilinkpromtaani@gmail.com";
+    }
+    function notBanned() {
+      return !('status' in resource.data) ||
+              resource.data.status != 'blocked';
+    }
+
+    // ── Users ─────────────────────────────────────────────────────────────────
+    // Users can read/write their own doc. Admins can read/write all.
+    match /users/{userId} {
+      allow read:  if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if (isOwner(userId) && notBanned()) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Transactions ──────────────────────────────────────────────────────────
+    // Created by backend (Cloud Functions). Users can read their own.
+    match /transactions/{txId} {
+      allow read:   if isSignedIn() &&
+                       (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if false;  // only backend writes transactions
+      allow update: if false;  // only backend updates (callback)
+      allow delete: if isAdmin();
+    }
+
+    // ── Withdrawals ───────────────────────────────────────────────────────────
+    match /withdrawals/{id} {
+      allow read:   if isSignedIn() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && notBanned() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.amount is number &&
+                       request.resource.data.amount >= 50;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Jobs ──────────────────────────────────────────────────────────────────
+    match /jobs/{jobId} {
+      allow read:   if true;
+      allow create: if isSignedIn() && notBanned();
+      allow update: if isSignedIn() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ── Products ──────────────────────────────────────────────────────────────
+    match /products/{productId} {
+      allow read:   if true;
+      allow create: if isSignedIn() && notBanned();
+      allow update: if isSignedIn() &&
+                       (resource.data.sellerId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() &&
+                       (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+
+    // ── Fraud Alerts ──────────────────────────────────────────────────────────
+    match /fraudAlerts/{alertId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Stats (global platform counters) ──────────────────────────────────────
+    // Backend writes via Cloud Functions. Admin can read.
+    match /stats/{docId} {
+      allow read:  if isAdmin();
+      allow write: if false;  // only Cloud Functions update stats
+    }
+
+    // ── Admin collection ──────────────────────────────────────────────────────
+    match /admin/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Notifications ─────────────────────────────────────────────────────────
+    match /notifications/{userId}/{notifId} {
+      allow read, delete: if isOwner(userId);
+      allow create: if isAdmin();
+    }
+  }
+}
